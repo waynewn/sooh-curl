@@ -1,0 +1,16 @@
+{
+
+    "name": "steady-as-hill/sooh-curl",
+    "description": "curl",
+    "keywords":         ["curl"],
+    "license":          "MIT",
+    "require": {
+
+    },
+    "autoload": {
+      "psr-4": { "Sooh\\CurlClasses\\": "src/CurlClasses" },
+        "classmap":["src/Curl.php"]
+    }
+}
+
+
