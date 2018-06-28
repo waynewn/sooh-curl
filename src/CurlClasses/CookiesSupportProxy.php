@@ -25,5 +25,21 @@ class CookiesSupportProxy extends \Sooh\CurlClasses\Cookies
             'CookieNameForSign'=>(is_array($arrMore)?$arrMore['CookieNameForSign']:'SignForSerivceProxy'),
             'RequestSNTransferByCookie'=>(is_array($arrMore)?$arrMore['RequestSNTransferByCookie']:'ReqSNAddByServiceProxy'),
         );
-    }    
+    }
+    
+    protected function checkSign($sign)
+    {
+        $i = substr($sign,0,2);
+        $k = substr($sign,-2);
+        $chk = substr($sign,2,-2);
+        return md5($i.self::$defined['ServcieProxySignkey'].$k)==$chk;
+    }
+    
+    protected function sign()
+    {
+        $i = rand(10,99);
+        $k = rand(10,99);
+        $sign = md5($i.self::$defined['ServcieProxySignkey'].$k);
+        return $i.$sign.$k;
+    }
 }
