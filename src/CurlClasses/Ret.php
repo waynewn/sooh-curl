@@ -2,12 +2,12 @@
 namespace Sooh\CurlClasses;
 
 class Ret {
-
     public $httpCode;
     public $newCookies=array();
-    //public $newHeaders;
     public $body;
     public $error;
+
+    //public $newHeaders;
     
     public static function facotryByRequest($ch)
     {

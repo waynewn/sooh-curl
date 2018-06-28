@@ -47,6 +47,15 @@ class Curl
         }
         return self::$_instance;
     }
+    /**
+     * 
+     * @param string $name
+     * @return \Sooh\CurlClasses\Addons
+     */
+    public function getAddons($name)
+    {
+        return isset($this->_addons[$name])?$this->_addons[$name]:null;
+    }
 
     /**
      * 设置一次性配置，这里的identifier使用要注意

@@ -10,7 +10,14 @@ class Headers implements Addons{
         if(!is_array($cookieOriginal)){
             throw new \ErrorException('arg for CurlClasses\Cookies should be array, given: '. var_export($cookieOriginal,true));
         }
-        $this->_original = $cookieOriginal;
+        foreach($cookieOriginal as $i=>$s){
+            if(is_int($i)){
+                $pos = strpos($s, ':');
+                $this->_original[trim(substr($s,0,$pos))]=$s;
+            }else{
+                $this->_original[$i]=$i.': '.$s;
+            }
+        }
     }
 
     public function disposables($arr)
@@ -18,9 +25,13 @@ class Headers implements Addons{
         if(is_string($arr)){
             $arr = array($arr);
         }
-        foreach($arr as $s){
-            $pos = strpos($s, ':');
-            $this->_disposables[trim(substr($s,0,$pos))]=$s;
+        foreach($arr as $i=>$s){
+            if(is_int($i)){
+                $pos = strpos($s, ':');
+                $this->_disposables[trim(substr($s,0,$pos))]=$s;
+            }else{
+                $this->_disposables[$i]=$i.': '.$s;
+            }
         }
     }
     
