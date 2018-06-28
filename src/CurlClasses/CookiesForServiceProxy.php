@@ -6,7 +6,7 @@ namespace Sooh\CurlClasses;
  * 
  * 获取uid的url有格式要求,返回的json格式的数据中，根节点要有跟cookie里相同名称的节点，值分别对应uid和路由设置(默认default)
  */
-class CookiesSupportProxy extends \Sooh\CurlClasses\Cookies
+class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
 {
     protected $_signKey;
     protected $_fieldSign;
