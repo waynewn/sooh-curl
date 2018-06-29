@@ -47,6 +47,25 @@ class Curl
         }
         return self::$_instance;
     }
+    
+    /**
+     * 需要 define (SoohServicePorxyUsed) 指明微服务的proxy的地址
+     * @param type $url
+     * @return type
+     */
+    protected function getFinalUrl($url)
+    {
+        if(substr($url,0,4)=='http'){
+            return $url;
+        }else{
+            if(defined('SoohServicePorxyUsed')){
+                $serviceProxy = \Sooh\Ini::getInstance()->getIni(SoohServicePorxyUsed.'.LocalProxyIPPort');
+                return $serviceProxy.$url;
+            }else{
+                throw new \ErrorException('invalid url given: '.$url);
+            }
+        }
+    }
     /**
      * 
      * @param string $name
@@ -91,7 +110,7 @@ class Curl
         }
         $ch = curl_init();
         if($ch){
-            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_URL, $this->getFinalUrl($url));
             $this->common_setting($ch,$timeOut);            
             $ret = \Sooh\CurlClasses\Ret::facotryByRequest($ch);
             $this->freeAddons(false);
@@ -114,7 +133,7 @@ class Curl
         $ch = curl_init();
 
         if($ch){
-            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_URL, $this->getFinalUrl($url));
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
             curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($params)?json_encode($params):$params);
             $this->common_setting($ch,$timeOut);            
@@ -137,7 +156,7 @@ class Curl
         $ch = curl_init();
 
         if($ch){
-            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_URL, $this->getFinalUrl($url));
 
             if(is_array($params)){
                 $tmp= http_build_query($params);

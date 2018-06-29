@@ -8,6 +8,23 @@ namespace Sooh\CurlClasses;
  */
 class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
 {
+    /**
+     * 需要按约定准备好配置文件，并设置 define (SoohServicePorxyUsed, 'INI中对应模块名')
+     */
+    public static function factoryByStipulated($arrCookie){
+        if(is_null($arrCookie)){
+            $arrCookie = array();
+        }
+        $cookieAddons = new \Sooh\CurlClasses\CookiesForServiceProxy($arrCookie);
+        $iniServiceProxy = \Sooh\Ini::getInstance()->getIni(SoohServicePorxyUsed);
+        $cookieAddons->initMoreForServiceProxy(
+                    $iniServiceProxy['ServcieProxySignkey'], $iniServiceProxy['CookieNameForSign'],
+                    $iniServiceProxy['CookieNameForSession'],$iniServiceProxy['CookieNameForUserID'],$iniServiceProxy['CookieNameForExtRouteId'],$iniServiceProxy['GetUidBySession'],
+                    $iniServiceProxy['CookieNameForDtStart'],$iniServiceProxy['RequestSNTransferByCookie']);
+        return $cookieAddons;
+        
+    }
+    
     protected $_signKey;
     protected $_fieldSign;
     protected $_fieldSession;
@@ -52,6 +69,7 @@ class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
     {
         $ch = curl_init();
         if($ch){
+            $arrCookie = array($this->_fieldSign=>$this->sign1());
             curl_setopt($ch, CURLOPT_URL, $this->_original[$this->_urlForGetUidFormSession].$this->_original[$this->_fieldSession]);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -59,6 +77,7 @@ class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
             curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_TIMEOUT, 1 ); 
+            curl_setopt($ch, CURLOPT_COOKIE, str_replace('&', '; ', http_build_query($arrCookie)));
             $tmp = curl_exec($ch);
             curl_close($ch);
             $arr = json_decode($tmp,true);
