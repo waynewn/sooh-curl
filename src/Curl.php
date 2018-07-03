@@ -49,7 +49,7 @@ class Curl
     }
     
     /**
-     * 需要 define (SoohServicePorxyUsed) 指明微服务的proxy的地址
+     * 需要 define (SoohServiceProxyUsed) 指明微服务的proxy的地址
      * @param type $url
      * @return type
      */
@@ -58,8 +58,8 @@ class Curl
         if(substr($url,0,4)=='http'){
             return $url;
         }else{
-            if(defined('SoohServicePorxyUsed')){
-                $serviceProxy = \Sooh\Ini::getInstance()->getIni(SoohServicePorxyUsed.'.LocalProxyIPPort');
+            if(defined('SoohServiceProxyUsed')){
+                $serviceProxy = \Sooh\Ini::getInstance()->getIni(SoohServiceProxyUsed.'.LocalProxyIPPort');
                 return $serviceProxy.$url;
             }else{
                 throw new \ErrorException('invalid url given: '.$url);
@@ -183,7 +183,7 @@ class Curl
     
     protected function common_setting($ch,$timeOut)
     {
-        foreach($this->plugins as $plugin){
+        foreach($this->_addons as $plugin){
             $plugin->onSetOpt($ch);
         }
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

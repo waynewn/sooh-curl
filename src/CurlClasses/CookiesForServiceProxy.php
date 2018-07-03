@@ -9,14 +9,14 @@ namespace Sooh\CurlClasses;
 class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
 {
     /**
-     * 需要按约定准备好配置文件，并设置 define (SoohServicePorxyUsed, 'INI中对应模块名')
+     * 需要按约定准备好配置文件，并设置 define (SoohServiceProxyUsed, 'INI中对应模块名')
      */
     public static function factoryByStipulated($arrCookie){
         if(is_null($arrCookie)){
             $arrCookie = array();
         }
         $cookieAddons = new \Sooh\CurlClasses\CookiesForServiceProxy($arrCookie);
-        $iniServiceProxy = \Sooh\Ini::getInstance()->getIni(SoohServicePorxyUsed);
+        $iniServiceProxy = \Sooh\Ini::getInstance()->getIni(SoohServiceProxyUsed);
         $cookieAddons->initMoreForServiceProxy(
                     $iniServiceProxy['ServcieProxySignkey'], $iniServiceProxy['CookieNameForSign'],
                     $iniServiceProxy['CookieNameForSession'],$iniServiceProxy['CookieNameForUserID'],$iniServiceProxy['CookieNameForExtRouteId'],$iniServiceProxy['GetUidBySession'],
