@@ -33,7 +33,7 @@ class Cookies  implements Addons{
         $tmp = array_merge($this->_original,$this->_disposables);
         
         if(sizeof($tmp)){
-            curl_setopt($ch, CURLOPT_COOKIE, str_replace('&', '; ', http_build_query($tmp)));
+            curl_setopt($ch, CURLOPT_COOKIE, str_replace('&', ';', http_build_query($tmp)));
         }
     }
 

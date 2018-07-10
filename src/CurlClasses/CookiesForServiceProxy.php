@@ -37,11 +37,12 @@ class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
     protected $_reqSnCounter=1;
     /**
      * 作者另一个ServiceProxy项目需要的额外设置
+     * key参数，允许有两个，逗号分割，验签的时候，两个key都会试，但生成签名用的是第一个
      * @return CookiesSupportProxy
      */
     public function initMoreForServiceProxy($signKey, $fieldSign,$fieldSession,$fieldUid,$fieldRouteChose,$urlForGetUidFromSession,$fieldDt,$fieldReqSN)
     {
-        $this->_signKey = $signKey;
+        $this->_signKey = explode(',',$signKey);
         $this->_fieldSign = $fieldSign;
         $this->_fieldSession = $fieldSession;
         $this->_fieldUid = $fieldUid;
@@ -49,22 +50,38 @@ class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
         $this->_urlForGetUidFormSession = $urlForGetUidFromSession;
         $this->_fieldDt = $fieldDt;
         $this->_fieldReqSN = $fieldReqSN;
-        if($this->checkSign()){
+//error_log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.CURL-init-cookie>>start {$this->_fieldReqSN}=".(empty($this->_original[$this->_fieldReqSN])?"":$this->_original[$this->_fieldReqSN])."\n". json_encode($this->_original));
+        if(empty($this->_original[$this->_fieldSign]) && !empty($this->_signKey)){//没有SN的情况，有key，没sign，应该是第一次进入微服务生态圈
             if(empty($this->_original[$this->_fieldReqSN])){
-                $this->_reqSNOriginal=md5(gethostname().'-'. getmypid().'-'. microtime(true).'-'.rand(100000,999999));
+                $this->_original[$this->_fieldSign] = $this->sign1();
+                $this->fillNeeds();
             }else{
-                $this->_reqSNOriginal=$this->_original[$this->_fieldReqSN];
+                throw new \ErrorException("sign of proxy check failed for curl");
             }
-            if(empty($this->_original[$this->_fieldUid])){//没有uid
-                if(!empty($this->_original[$this->_fieldSession]) && !empty($this->_original[$this->_urlForGetUidFormSession])){
-                    $this->fetchUidBySession();
-                }
-            }
+        }
+        
+        if($this->checkSign()){
+            $this->fillNeeds();
         }else{
             throw new \ErrorException("sign of proxy check failed for curl");
         }
         return $this;
     }
+    
+    protected function fillNeeds()
+    {
+        if(empty($this->_original[$this->_fieldReqSN])){
+            $this->_reqSNOriginal=md5(gethostname().'-'. getmypid().'-'. microtime(true).'-'.rand(100000,999999)).'_0';
+        }else{
+            $this->_reqSNOriginal=$this->_original[$this->_fieldReqSN];
+        }
+        if(empty($this->_original[$this->_fieldUid])){//没有uid
+            if(!empty($this->_original[$this->_fieldSession]) && !empty($this->_original[$this->_urlForGetUidFormSession])){
+                $this->fetchUidBySession();
+            }
+        }
+    }
+    
     protected function fetchUidBySession()
     {
         $ch = curl_init();
@@ -94,9 +111,10 @@ class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
         $this->_reqSnCounter++;
         parent::onSetOpt($ch);
     }
-    public function getTimestampStart()
+    //yyyy-mm-dd
+    public function getTimeStart()
     {
-        return isset($this->_original[$this->_fieldDt])?$this->_original[$this->_fieldDt]:0;
+        return isset($this->_original[$this->_fieldDt])?$this->_original[$this->_fieldDt]:"";
     }
     public function getRequestSN()
     {
@@ -109,9 +127,7 @@ class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
         if(empty($this->_signKey)){
             return true;
         }
-        if(empty($this->_original[$this->_fieldSign])){
-            return false;
-        }
+        
         $func = "checkSign".substr($this->_original[$this->_fieldSign],0,1);
         return $this->$func();
         
@@ -122,13 +138,19 @@ class CookiesForServiceProxy extends \Sooh\CurlClasses\Cookies
         $i = substr($sign,1,2);
         $k = substr($sign,-2);
         $chk = substr($sign,3,-2);
-        return md5($i.$this->_signKey.$k)==$chk;
+        if (md5($i.$this->_signKey[0].$k)==$chk){
+            return true;
+        }elseif(isset($this->_signKey[1]) && md5($i.$this->_signKey[1].$k)==$chk){
+            return true;
+        }else{
+            return false;
+        }
     }
     protected function sign1()
     {
         $i = rand(10,99);
         $k = rand(10,99);
-        $sign = md5($i.self::$defined['ServcieProxySignkey'].$k);
+        $sign = md5($i.$this->_signKey[0].$k);
         return "1".$i.$sign.$k;
     }
 }

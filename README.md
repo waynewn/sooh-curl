@@ -63,7 +63,14 @@ public function httpRawJson($url, $params,$timeOut=5)
 1. Header的
 2. proxy代理设置的
 3. 标准Cookie的
-4. ServiceProxy项目使用的处理Cookie的
+4. ServiceProxy项目使用的CookiesForServiceProxy(基于标准Cookie)，通过cookie记录很多辅助信息：uid,路由策略,请求链初始时间等
+
+初始化需要很多额外参数(其中，key参数，允许有两个，逗号分割，验签的时候，两个key都会试，但生成签名用的是第一个)，
+
+同时提供下面两个方法：
+
+*   public function getTimestampStart() 获取整个请求链最初的时间
+*   public function getRequestSN() 获取初始化时得到（或生成）的请求的唯一SN
 
 curl 提供了 getAddons() 获取指定的Addons
 
